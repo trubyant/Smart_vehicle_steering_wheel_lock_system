@@ -1,0 +1,29 @@
+# Use an official Python runtime as a base image
+FROM python:3.9
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Install system dependencies required for common Python packages and dlib
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    cmake \
+    build-essential \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install dlib separately to leverage Docker's caching mechanism
+# Consider using a pre-compiled wheel if available to speed up the process
+RUN pip install dlib==19.22.0
+RUN pip install gunicorn
+# First copy only the requirements.txt file and install Python dependencies
+# Your requirements.txt should include Flask, face_recognition, gunicorn, and google-cloud-storage
+COPY requirements.txt /app/
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Then copy the rest of your application code
+COPY . /app
+
+CMD gunicorn -b 0.0.0.0:$PORT main:app
+

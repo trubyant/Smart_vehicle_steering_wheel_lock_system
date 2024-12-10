@@ -1,0 +1,6 @@
+env/
+venv/
+.vscode/
+/main2-testing.py
+/tmp
+/dataset
